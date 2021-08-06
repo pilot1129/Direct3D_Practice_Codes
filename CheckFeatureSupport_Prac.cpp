@@ -18,11 +18,15 @@ void PrintDisplayMode()
 	ComPtr<ID3D12Device> testDevice;
 	D3D12_FEATURE_DATA_D3D12_OPTIONS5 featureSupportData = {};
 
+	// IDXGIFactrory1 설정
 	CreateDXGIFactory1(IID_PPV_ARGS(&pFactory));
-	pFactory->EnumAdapters1(0, &pAdapter);
-
-	IDXGIAdapter1* adapter = pAdapter.Get();
+	// adapter 열거
+	pFactory->EnumAdapters1(0, &pAdapter); 
+	// adapter Get으로 값 불러오기
+	IDXGIAdapter1* adapter = pAdapter.Get(); 
+	//DisplayAdapter을 나타내는 device 생성
 	D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&testDevice));
+	//CheckFeatureSupport : 기능지원점검
 	testDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &featureSupportData, sizeof(featureSupportData));
 }
 
