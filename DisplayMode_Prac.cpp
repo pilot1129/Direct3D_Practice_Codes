@@ -9,13 +9,16 @@ using namespace std;
 //DisplayMode를 출력하기 위한 함수
 void PrintDisplayMode()
 {
+	// 1. init
 	IDXGIAdapter* adapter = nullptr;
+	IDXGIFactory1* pFactory = nullptr;
 	vector<IDXGIAdapter*> adapterList;
 	int i = 0;
-	IDXGIFactory1* pFactory = nullptr;
+	
+	// 2. pFactory Setting
 	CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)(&pFactory));
 
-	//1. adapter 입력
+	//3. adapter Setting
 	while (pFactory->EnumAdapters(i, &adapter) != DXGI_ERROR_NOT_FOUND)
 	{
 		adapterList.push_back(adapter);
@@ -23,22 +26,25 @@ void PrintDisplayMode()
 	}
 	i = 0;
 
-	//2. Display출력 setting
+	//4. Display출력 setting
 	IDXGIOutput* output = nullptr;
 	for (int j = 0; j < adapterList.size(); ++j)
 	{
 		adapter = adapterList[j];
+		//pFactory->EnumAdapters : adapter 열거
 		while (adapter->EnumOutputs(i, &output) != DXGI_ERROR_NOT_FOUND)
 		{
 			DXGI_OUTPUT_DESC desc;
-			output->GetDesc(&desc);
+			output->GetDesc(&desc); // desc 설정
 
-			// 3. Display Mode 출력
+			//Display Mode 출력
 			UINT count = 0;
 			UINT flags = 0;
 
+			// List의 크기(count) 불러오기
 			output->GetDisplayModeList(DXGI_FORMAT_B8G8R8A8_UNORM, flags, &count, nullptr);
 			vector<DXGI_MODE_DESC> modeList(count);
+			// DisplayModeList 설정
 			output->GetDisplayModeList(DXGI_FORMAT_B8G8R8A8_UNORM, flags, &count, &modeList[0]);
 
 			for (auto& x : modeList)
