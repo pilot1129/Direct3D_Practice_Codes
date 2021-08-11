@@ -11,10 +11,8 @@
 #include <WinUser.h>
 //#include <afxwin.h>
 
-
 using namespace Microsoft::WRL;
 using namespace std;
-
 
 void ControlCommandQueue()
 {
