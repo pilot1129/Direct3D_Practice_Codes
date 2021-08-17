@@ -1,14 +1,17 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "D3D12.lib")
+#include <Windows.h>
+#include <WinUser.h>
 #include <dxgi.h> // IDXGI를 사용하기 위한 Header
+#include <d3d12.h> // CommandQueue를 사용하기 위한 Header
+#include <d3dcompiler.h>
+#include <dxgi1_4.h>
+#include <wrl.h> // ComPtr를 사용하기 위한 Header
 #include <iostream>
 #include <string> // wstring Header
 #include <vector>
-#include <d3d12.h> // CommandQueue를 사용하기 위한 Header
-#include <wrl.h> // ComPtr를 사용하기 위한 Header
-#include <Windows.h>
 #include <cassert> // assert 사용하기 위한 Header
-#include <WinUser.h>
+
 //#include <afxwin.h>
 
 using namespace Microsoft::WRL;
@@ -22,6 +25,20 @@ inline void ThrowIfFailed(HRESULT hr)
 
 void LoadPipeline()
 {
+	UINT dxgiFactoryFlags = 0;
+#if defined(_DEBUG)
+	{
+		ComPtr<ID3D12Debug> debugController;
+		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+		{
+			debugController->EnableDebugLayer();
+
+			// Enable additional debug layers.
+			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+		}
+	}
+#endif
+
 	static const int SwapChainBufferCount = 2; // 전면buffer , 후면buffer 
 	ComPtr<IDXGIFactory1> pFactory;
 	ComPtr<IDXGIAdapter1> pAdapter;
@@ -182,5 +199,6 @@ void LoadPipeline()
 
 int main()
 {
+	LoadPipeline();
 	return 0;
 }
