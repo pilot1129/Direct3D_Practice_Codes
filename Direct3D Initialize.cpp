@@ -14,7 +14,13 @@
 using namespace Microsoft::WRL;
 using namespace std;
 
-void ControlCommandQueue()
+inline void ThrowIfFailed(HRESULT hr)
+{
+	if (FAILED(hr))
+		throw exception();
+}
+
+void LoadPipeline()
 {
 	static const int SwapChainBufferCount = 2; // 전면buffer , 후면buffer 
 	ComPtr<IDXGIFactory1> pFactory;
@@ -29,6 +35,7 @@ void ControlCommandQueue()
 	ComPtr<ID3D12DescriptorHeap> pDsvHeap;
 	ComPtr<ID3D12Resource> pSwapChainBuffer[SwapChainBufferCount];
 	ComPtr<ID3D12Resource> pDepthStencilBuffer[SwapChainBufferCount];
+
 
 	CreateDXGIFactory1(IID_PPV_ARGS(&pFactory)); // IDXGIFactrory1 설정[교환 사슬 생성]
 	pFactory->EnumAdapters1(0, &pAdapter); // adapter 열거
@@ -103,14 +110,14 @@ void ControlCommandQueue()
 	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	dsvHeapDesc.NodeMask = 0;
 	testDevice->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(pDsvHeap.GetAddressOf()));
-	
+
 	// 7. 후면 버퍼 크기 설정 및 렌더 대상 뷰 생성
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(pRtvHeap->GetCPUDescriptorHandleForHeapStart());
 	pSwapChainBuffer->Get();
 	for (int i = 0; i < SwapChainBufferCount; i++)
 	{
 		testDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&pDirectCmdListAlloc));
-		
+
 		/* 작동안함 - pSwapChainBuffer안에 아무것도 없음(NULL)
 		// swapchain의 i번째 buffer read
 		pSwapChain->GetBuffer(i, IID_PPV_ARGS(&pSwapChainBuffer[i]));
@@ -157,7 +164,7 @@ void ControlCommandQueue()
 	barrierRes.Transition.StateAfter = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 	barrierRes.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	pCommandList->ResourceBarrier(1, &BarrierResult);
-	
+
 	//9. 뷰포트 설정
 	D3D12_VIEWPORT vp;
 	vp.TopLeftX = 0.0f;
@@ -175,6 +182,5 @@ void ControlCommandQueue()
 
 int main()
 {
-	ControlCommandQueue();
 	return 0;
 }
